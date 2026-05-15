@@ -1,0 +1,10 @@
+venv_isic/
+data/*
+!data/.gitkeep
+*.pth
+*.pt
+__pycache__/
+*.pyc
+.pytest_cache/
+.vscode/
+best_model.pth
