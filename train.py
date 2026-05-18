@@ -206,6 +206,27 @@ def main():
     print("Modelo guardado en best_model.pth")
 
 
+import urllib.request
+import zipfile
+import os
+
+os.makedirs('./data', exist_ok=True)
+
+# Descargar Ground Truth de Task 2 (mismas imágenes que Task 1)
+url = "https://isic-challenge-data.s3.amazonaws.com/2018/ISIC2018_Task2_Training_GroundTruth_v3.zip"
+print("Descargando Task 2 ground truth...")
+urllib.request.urlretrieve(url, "./data/task2_gt.zip")
+
+with zipfile.ZipFile("./data/task2_gt.zip", 'r') as z:
+    z.extractall("./data/task2_gt/")
+
+# Ver qué contiene
+for root, dirs, files in os.walk("./data/task2_gt/"):
+    for f in files[:5]:
+        print(os.path.join(root, f).replace("./data/", ""))
+    if files:
+        print(f"  ... ({len(files)} archivos)")
+
 if __name__ == "__main__":
     freeze_support()
     main()
