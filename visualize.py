@@ -19,6 +19,8 @@ DEVICE   = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 CLASES3  = ['BENIGNO', 'MALIGNO', 'UNKNOWN']
 COLORES  = {'BENIGNO': 'green', 'MALIGNO': 'red', 'UNKNOWN': 'gray'}
 
+
+
 # ── Modelo (mismo que train_multitask.py) ──────────────────────────────────
 class MultitaskModel(nn.Module):
     def __init__(self, num_classes=3):
@@ -78,9 +80,9 @@ def dice_single(pred, target):
 def main():
     # ── Cargar modelo ──────────────────────────────────────────────────────
     model = MultitaskModel(num_classes=3).to(DEVICE)
-    model.load_state_dict(torch.load("best_multitask_model.pth", map_location=DEVICE))
+    model.load_state_dict(torch.load("best_multitask_model.pth", map_location=DEVICE, weights_only=True))
     model.eval()
-    print("✅ Modelo cargado")
+    print(" Modelo cargado")
 
     # ── Cargar val con máscara Y etiqueta ─────────────────────────────────
     val_df = pd.read_csv("./data/val_multitask.csv")
@@ -103,7 +105,7 @@ def main():
 
     fig, axes = plt.subplots(8, 4, figsize=(16, 26))
     fig.suptitle("Segmentación — Predicción vs Ground Truth\n"
-                 "🟡 Ambos correcto  🟢 Solo GT  🔴 Solo predicción",
+                 "Ambos correcto / Solo GT / Solo predicción",
                  fontsize=13, y=1.005)
 
     for i, row in sample_seg.iterrows():
@@ -154,6 +156,7 @@ def main():
 
     plt.tight_layout()
     plt.savefig("viz_segmentacion.png", dpi=120, bbox_inches='tight')
+    plt.close('all')
     plt.show()
     print(f"\nDice promedio (8 muestras): {np.mean(dice_scores):.4f}")
     print(f"Mejor  : {max(dice_scores):.4f}")
@@ -190,22 +193,26 @@ def main():
 
         axes[r_idx, c_idx].imshow(img_borde)
         titulo = (f"Real: {real_clase}\n"
-                  f"Pred: {pred_clase} ({cls_probs[cls_idx]*100:.0f}%)\n"
-                  f"{'✅ Correcto' if correcto else '❌ Error'}")
+              f"Pred: {pred_clase} ({cls_probs[cls_idx]*100:.0f}%)\n"
+              f"{'Correcto' if correcto else 'Error'}")
         axes[r_idx, c_idx].set_title(titulo, fontsize=9,
                                       color='green' if correcto else 'red')
         axes[r_idx, c_idx].axis('off')
 
         # Mini barra de probabilidades
         ax_ins = axes[r_idx, c_idx].inset_axes([0, -0.35, 1, 0.28])
-        bars   = ax_ins.bar(CLASES3, cls_probs,
-                             color=['green','red','gray'], alpha=0.7)
+        x_pos  = np.arange(len(CLASES3))
+        bars   = ax_ins.bar(x_pos, cls_probs,
+                     color=['green','red','gray'], alpha=0.7)
+        ax_ins.set_xticks(x_pos)
+        ax_ins.set_xticklabels(CLASES3)
         ax_ins.set_ylim(0,1)
         ax_ins.tick_params(labelsize=7)
         ax_ins.set_title("Probabilidades", fontsize=7)
 
     plt.tight_layout()
     plt.savefig("viz_clasificacion.png", dpi=120, bbox_inches='tight')
+    plt.close('all')
     plt.show()
 
     # ══════════════════════════════════════════════════════════════════════
@@ -261,10 +268,11 @@ def main():
     plt.colorbar(im)
     plt.tight_layout()
     plt.savefig("viz_confusion.png", dpi=120, bbox_inches='tight')
+    plt.close('all')
     plt.show()
 
     print(stats)
-    print("\n✅ 3 visualizaciones guardadas:")
+    print("\n 3 visualizaciones guardadas:")
     print("  viz_segmentacion.png")
     print("  viz_clasificacion.png")
     print("  viz_confusion.png")
