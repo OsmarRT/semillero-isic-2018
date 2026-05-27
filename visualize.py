@@ -261,12 +261,12 @@ def main():
     stats = (f"Accuracy     : {accuracy:.3f}\n"
              f"Sensibilidad : {sensibilidad:.3f}  (detecta malignos)\n"
              f"Especificidad: {especificidad:.3f}  (descarta benignos)")
-    ax.text(1.05, 0.5, stats, transform=ax.transAxes,
-            fontsize=10, va='center',
+    plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+    ax.text(0.5, -0.22, stats, transform=ax.transAxes,
+            fontsize=10, ha='center', va='top', clip_on=False,
             bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
 
-    plt.colorbar(im)
-    plt.tight_layout()
+    plt.tight_layout(rect=[0, 0.08, 1, 1])
     plt.savefig("viz_confusion.png", dpi=120, bbox_inches='tight')
     plt.close('all')
     plt.show()
